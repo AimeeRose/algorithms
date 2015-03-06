@@ -12,6 +12,12 @@ def right_child(i):
 def left_child(i):
   return (i*2) + 1
 
+def is_leaf(L, i):
+  return left_child(i) > len(L)
+
+def has_single_child(L, i):
+  return right_child(i) == len(L)
+
 def swap(L, idx1, idx2):
   val1 = L[idx1]
   val2 = L[idx2]
@@ -34,7 +40,7 @@ def sift_up(L, idx):
 # Graph as list
 G = []
 
-for _ in range(16): G.append(random.randint(0,100))
+for _ in range(18): G.append(random.randint(0,100))
 
 G1 = G[:]
 
@@ -53,23 +59,28 @@ def my_heapify(G):
     if left_index < len(G): todo.insert(0, left_index)
     # get the values at all the indices
     current_val = G[current_idx]
-    # The other way to do this would be to determine how many children current has
-    # If one child, get the left child and get the comparison
-    # If two children, get both and do the comparison
     #
-    left_val = 100000000
-    if left_index < len(G): left_val = G[left_index]
-    right_val = 100000000
-    if right_index < len(G): right_val = G[right_index]
-    if left_val < current_val or right_val < current_val:
-      # Right val or left val could be none at this point as None < any number
+    # The other way to do this would be to determine if the node is a leaf node or has only one child
+    # If leaf node, do nothing.
+    if not is_leaf(G, current_idx):
+      left_val = G[left_index]
+      # If one child only compare with the one child.
       #
-      if right_val < left_val:
-        swap(G, current_idx, right_index)
-        sift_up(G, current_idx)
-      elif left_val < current_val:
-        swap(G, current_idx, left_index)
-        sift_up(G, current_idx)
+      if has_single_child(G, current_idx):
+        if left_val < current_val:
+          swap(G, current_idx, left_index)
+          sift_up(G, current_idx)
+      # If two children, get both and do the comparison
+      #
+      else:
+        right_val = G[right_index]
+        if left_val < current_val or right_val < current_val:
+          if right_val < left_val:
+            swap(G, current_idx, right_index)
+            sift_up(G, current_idx)
+          else:
+            swap(G, current_idx, left_index)
+            sift_up(G, current_idx)
 
 my_heapify(G1)
 
