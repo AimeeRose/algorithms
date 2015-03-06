@@ -49,14 +49,16 @@ while len(todo) > 0:
   if left_index < len(G): todo.insert(0, left_index)
   # get the values at all the indices
   current_val = G[current_idx]
-  left_val = 1000000000
+  left_val = None
   if left_index < len(G): left_val = G[left_index]
-  right_val = 100000000
+  right_val = None
   if right_index < len(G): right_val = G[right_index]
   if left_val < current_val or right_val < current_val:
-    if left_val < right_val:
-      swap(G, current_idx, left_index)
-      sift_up(G, current_idx)
-    else:
+    # Right val or left val could be none at this point as None < any number
+    #
+    if right_val and right_val < left_val:
       swap(G, current_idx, right_index)
+      sift_up(G, current_idx)
+    elif left_val and left_val < current_val:
+      swap(G, current_idx, left_index)
       sift_up(G, current_idx)
