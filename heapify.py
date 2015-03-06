@@ -1,5 +1,6 @@
 import random
 import math
+import heapq
 
 # Helper functions
 def parent(i):
@@ -17,12 +18,15 @@ def swap(L, idx1, idx2):
   L[idx1] = val2
   L[idx2] = val1
 
+# Take the value at L[idx] and compare it with its parent
+# If the parent is greater, swap and sift up
+#
 def sift_up(L, idx):
   if idx > 0:
     parent_idx = parent(idx)
     parent_val = L[parent_idx]
-    current = L[idx]
-    if parent_val > current:
+    current_val = L[idx]
+    if parent_val > current_val:
       swap(L, parent_idx, idx)
       sift_up(L, parent_idx)
   return
@@ -32,33 +36,41 @@ G = []
 
 for _ in range(16): G.append(random.randint(0,100))
 
-G
+G1 = G[:]
 
-# Nodes to visit
-todo = [0]
-
-while len(todo) > 0:
-  # Get next thing todo
-  current_idx = todo[0]
-  # delete it from the todo list
-  del todo[0]
-  # append its children
-  left_index = left_child(current_idx)
-  right_index = right_child(current_idx)
-  if right_index < len(G): todo.insert(0, right_index)
-  if left_index < len(G): todo.insert(0, left_index)
-  # get the values at all the indices
-  current_val = G[current_idx]
-  left_val = None
-  if left_index < len(G): left_val = G[left_index]
-  right_val = None
-  if right_index < len(G): right_val = G[right_index]
-  if left_val < current_val or right_val < current_val:
-    # Right val or left val could be none at this point as None < any number
+def my_heapify(G):
+  # Nodes to visit
+  todo = [0]
+  while len(todo) > 0:
+    # Get next thing todo
+    current_idx = todo[0]
+    # delete it from the todo list
+    del todo[0]
+    # append its children
+    left_index = left_child(current_idx)
+    right_index = right_child(current_idx)
+    if right_index < len(G): todo.insert(0, right_index)
+    if left_index < len(G): todo.insert(0, left_index)
+    # get the values at all the indices
+    current_val = G[current_idx]
+    # The other way to do this would be to determine how many children current has
+    # If one child, get the left child and get the comparison
+    # If two children, get both and do the comparison
     #
-    if right_val and right_val < left_val:
-      swap(G, current_idx, right_index)
-      sift_up(G, current_idx)
-    elif left_val and left_val < current_val:
-      swap(G, current_idx, left_index)
-      sift_up(G, current_idx)
+    left_val = 100000000
+    if left_index < len(G): left_val = G[left_index]
+    right_val = 100000000
+    if right_index < len(G): right_val = G[right_index]
+    if left_val < current_val or right_val < current_val:
+      # Right val or left val could be none at this point as None < any number
+      #
+      if right_val < left_val:
+        swap(G, current_idx, right_index)
+        sift_up(G, current_idx)
+      elif left_val < current_val:
+        swap(G, current_idx, left_index)
+        sift_up(G, current_idx)
+
+my_heapify(G1)
+
+G1
