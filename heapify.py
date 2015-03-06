@@ -30,7 +30,7 @@ def sift_up(L, idx):
 # Graph as list
 G = []
 
-for _ in range(8): G.append(random.randint(0,100))
+for _ in range(16): G.append(random.randint(0,100))
 
 G
 
@@ -53,16 +53,10 @@ while len(todo) > 0:
   if left_index < len(G): left_val = G[left_index]
   right_val = 100000000
   if right_index < len(G): right_val = G[right_index]
-  if current_val > left_val and current_val > right_val:
+  if left_val < current_val or right_val < current_val:
     if left_val < right_val:
       swap(G, current_idx, left_index)
       sift_up(G, current_idx)
     else:
-      swap(G, current_idx, left_index)
+      swap(G, current_idx, right_index)
       sift_up(G, current_idx)
-  elif current_val > right_val:
-    swap(G, current_idx, right_index)
-    sift_up(G, current_idx)
-  elif current_val > left_val:
-    swap(G, current_idx, left_index)
-    sift_up(G, current_idx)
