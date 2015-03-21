@@ -1,4 +1,5 @@
 import random
+import string
 import math
 import heapq
 
@@ -13,7 +14,7 @@ def left_child(i):
   return (i*2) + 1
 
 def is_leaf(L, i):
-  return left_child(i) > len(L)
+  return left_child(i) >= len(L)
 
 def has_single_child(L, i):
   return right_child(i) == len(L)
@@ -36,13 +37,6 @@ def sift_up(L, idx):
       swap(L, parent_idx, idx)
       sift_up(L, parent_idx)
   return
-
-# Graph as list
-G = []
-
-for _ in range(18): G.append(random.randint(0,100))
-
-G1 = G[:]
 
 def my_heapify(G):
   # Nodes to visit
@@ -82,6 +76,13 @@ def my_heapify(G):
             swap(G, current_idx, left_index)
             sift_up(G, current_idx)
 
-my_heapify(G1)
+# Graph as list
+G = []
 
-G1
+for _ in range(19): G.append((random.randint(0,100), random.choice(string.letters)))
+
+G
+
+my_heapify(G)
+
+G
