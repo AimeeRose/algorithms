@@ -4,7 +4,9 @@
     <meta charset="utf-8">
     <title>Merge Sort</title>
 
+    <script type="text/javascript" src="js/jquery-1.11.2.min.js"></script>
     <script type="text/javascript" src="js/d3.v3.min.js"></script>
+    <script type="text/javascript" src="js/underscore-min.js"></script>
   </head>
 
   <body>
@@ -12,19 +14,20 @@
       // sort two integers
       function sortTuple(a, b) {
         sorted = []
-        if (a < b) {
+        if (a.value < b.value) {
           sorted = [a, b]
-        } else {
+        } else if (b.value < a.value) {
+          swapPositions(a, b)
           sorted = [b, a]
+        } else { // they are equal
+          sorted = [a, b]
         }
-        console.log("Sorted tuple: " + sorted)
         return sorted
       }
 
       // Take two arrays and return merged array
       // a and b should both be sorted arrays
       function mergeSortedArrays(a, b) {
-        console.log("Merging sorted: [" + a + '], [' + b + ']')
         var i = 0, // index of a
             j = 0, // index of b
             c = [] // merge into c
@@ -32,7 +35,7 @@
         while (i < a.length || j < b.length) {
           // if there are still items in both a and b, do a comparison
           if (i < a.length && j < b.length) {
-            if (a[i] < b[j]) {
+            if (a[i].value < b[j].value) {
               c.push(a[i])
               i++
             } else {
@@ -48,11 +51,15 @@
             j = b.length
           }
         }
-        console.log("Merged: " + c)
+        yPosition += size * 2 + 10
+        drawCircles(c, 'pink', false)
         return c
       }
 
       function sortOrMerge(array) {
+        yPosition += size * 2 + 10
+        drawCircles(array, 'orange', true)
+
         sorted = []
         if (array.length > 2) {
           // recurse
@@ -67,54 +74,122 @@
         return sorted
       }
 
+      var svg = d3.select('body').append('svg').attr('width', 500).attr('height', 1000)
+
       function mergeSort(array) {
         var halfway = Math.ceil(array.length/2)
         var a = array.slice(0, halfway) // inclusive
         var b = array.slice(halfway, array.length) // exclusive
-        console.log("first half: " + a)
-        console.log("second half: " + b)
 
         // sort each half recursively
         var a_sorted = sortOrMerge(a),
             b_sorted = sortOrMerge(b)
 
+        // d3.selectAll('circle')
+        //   .transition('ease')
+        //   .attr('fill', function(d) {
+        //     if ($.inArray(d, a_sorted) + 1) {
+        //       return 'green'
+        //     } else if ($.inArray(d, b_sorted)) {
+        //       return 'orange'
+        //     } else { return d3.select(this).attr('fill') }
+        //   })
         return mergeSortedArrays(a_sorted, b_sorted)
       }
 
-      // show original array
-      //
-      var arr = [];
-      for (var i = 0, l = 9; i < l; i++) {
-          arr.push(Math.round(Math.random() * l))
+      function getValues(array) {
+        return _.map(array, function(v) { return v.value })
       }
 
-      console.log("Unsorted: " + arr)
-      console.log("Sorted: " + mergeSort(arr))
-
-      var xPosition = 0
       var size = 20
-      var margin = size + 10
-      var svg = d3.select('body').append('svg').attr('width', 500).attr('height', 500)
-      var circles = svg.selectAll('circle').data(arr).enter().append('circle')
-        .attr('r', size)
-        .attr('fill', 'deepskyblue')
-        .attr('cy', size * 2)
-        .attr('cx', function(d) { xPosition += (size + margin); return xPosition })
+      var yPosition = size * 2
+      var g_row = 1
 
+      function drawCircles(array, color, active) {
+        var xPosition = 0
+        var margin = size + 10
 
-      var text = svg.selectAll("text")
-          .data(arr)
-          .enter()
-          .append("text");
-      var xPosition = 0
+        //var elem = g.selectAll('g').data(array)
+        if (active) {
+          svg.selectAll('g').classed('active', false)
+        }
+        var g = svg.append('g').attr('id', 'row_' + g_row).classed('active', active ? true : false)
+        g_row ++
+     
+        /*Create the circle for each block */
+        var circle = g.selectAll('cicle').data(array).enter().append("circle")
+          .attr('cy', yPosition)
+          .attr('cx', function(d) { xPosition += (size + margin); return xPosition })
+          .attr("r", size)
+          .attr('fill', color)
+          .attr('stroke-width', 1)
 
-      var textLabels = text
-         .attr("x", function(d) { return xPosition += (size + margin); return xPosition; })
-         .attr("y", function(d) { return size * 2; })
-         .text(function (d) { return d; })
-         .attr("font-family", "sans-serif")
-         .attr("font-size", "20px")
-         .attr("fill", "red");
+        var xPosition = 0
+        /* Create the text for each block */
+        var text = g.selectAll('text').data(array).enter().append('text')
+          .attr('font-family', 'Helvetica Neue, sans-serif')
+          .attr('font-weight', 200)
+          .attr('fill', 'white')
+          .attr('x', function(d) { xPosition += (size + margin); return xPosition - 4.5; })
+          .attr('y', function(d) { return yPosition + 5; })
+          .text(function(d) { return d.value })
+      }
+
+      function findObject(objectType, data) {
+        console.log(data)
+        return _.find(d3.selectAll('g.active').selectAll(objectType)[0], function(c) { return c.__data__ == data })
+      }
+      
+      function swapPositions(a, b) {
+        circle_a = findObject('circle', a)
+        circle_b = findObject('circle', b)
+        circle_a_cx = circle_a.cx.baseVal.value
+        circle_b_cx = circle_b.cx.baseVal.value
+        text_a = findObject('text', a)
+        text_b = findObject('text', b)
+        text_a_x = text_a.x.baseVal[0].value
+        text_b_x = text_b.x.baseVal[0].value
+
+        d3.selectAll('g.active').selectAll('circle')
+          .transition()
+          .attr('cx', function(d) {
+            if (d.index == a.index) {
+              return circle_b_cx
+            } else if (d.index == b.index) {
+              return circle_a_cx
+            } else {
+              return this.cx.baseVal.value;
+            }
+          })
+
+        d3.selectAll('g.active').selectAll('text')
+          .transition()
+          .attr('x', function(d) {
+            if (d.index == a.index) {
+              return text_b_x
+            } else if (d.index == b.index) {
+              return text_a_x
+            } else {
+              return this.x.baseVal[0].value;
+            }
+          })
+      }
+
+      // random array
+      //
+      function randomArray(len) {
+        var array = [];
+        for (var i = 0, l = len; i < l; i++) {
+          var random = Math.round(Math.random() * l)
+          var kv = {'index': i, 'value': random}
+          array.push(kv)
+        }
+        return array
+      }
+      array = randomArray(9)
+      drawCircles(array, 'blue', true)
+      mergeSort(array)
+      //drawCircles(mergeSort(array))
     </script>
   </body>
 </html>
