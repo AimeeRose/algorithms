@@ -1,55 +1,52 @@
-# Overall idea of quicksort is:
-#   1. Take a random element p from array A
-#   2. Partition A so that all elements less than p are to its left, and all elements greater than p are to its right
-#   3. Recurse on the left and right subarrays in A
-#
+# quicksort should take an array,
+# partition it around a random pivot,
+# If the pivot is at place i
+# sort the left portions and right portions
 import random
 
-# Random partition takes an array A,
-# and partitions around the a random element p.
-#
-# First it must swap the random element with the first element so we can keep track of what things
-# are sorted and unsorted.
-#
-# Keep track of a partition index, where the cursor is between the sorted and unsorted elements.
-# Keep track of a p position index, where the element p would go to be between elements less than
-# and elements greater than.
-#
-# Iterate through each element in A,
-#  if the element is less than p,
-#  Swap the element with first element after the p position index,
-#  and increment the p position index. Increment the partition index.
-#  if it is greather than p, increment the partition index.
-# 
-def partition(A, start_index, end_index):
-  # Base case: if this part of the array is only one item, return.
-  random_index = random.randint(start_index, end_index)
-  p = A[random_index]
-  print "Random: " + str(p)
-  first_element = A[start_index]
-  # swap first and random elements
-  A[start_index] = p
-  A[random_index] = first_element
-  i = start_index + 1 # p position index
-  j = start_index + 1 # p partition index
-  while (j < end_index):
-    q = A[j] # the new element
-    if q <= p:
-      # swap
-      # Find the value at one place greater than the position index
-      r = A[i]
-      A[j] = r
-      A[i] = q
-      i += 1
-      j += 1
-    else:
-      j += 1
-  current_index = i - 1
-  # swap p with the element right before i
-  s = A[current_index]
-  A[current_index] = p
-  A[start_index] = s
+def partition(A, start, finish):
+  if finish - start <= 1:
+    return A
+  else:
+    # Pick random element between start and finish
+    random_index = random.randint(start, finish - 1)
+    p = A[random_index]
+    # Swap it with the start
+    first_element = A[start]
+    A[start] = p
+    A[random_index] = first_element
+    # initialize i and j for start
+    i = start + 1
+    j = start + 1
+    # loop from start to finish
+    while (j < finish):
+      q = A[j] # the new element
+      if q <= p:
+        # swap
+        # Find the value at one place greater than the position index
+        r = A[i]
+        A[j] = r
+        A[i] = q
+        i += 1
+        j += 1
+      else:
+        j += 1
+    ps_index = i - 1
+    # swap p with the element right before i
+    s = A[ps_index]
+    A[ps_index] = p
+    A[start] = s
+    A = partition(A, start, i - 2)
+    A = partition(A, i + 1, finish)
+    return A
+
+def quicksort(A):
+  if len(A) <= 1:
+    return A
+  else:
+    A = partition(A, 0, len(A))
   return A
+
 
 A = []
 
@@ -57,13 +54,4 @@ for _ in range(9): A.append(random.randint(0,100))
 
 A
 
-partition(A, 0, 9)
-
-# Overall idea of quicksort is:
-#   1. Take a random element p from array A
-#   2. Partition A so that all elements less than p are to its left, and all elements greater than p are to its right
-#   3. Recurse on the left and right subarrays in A
-#
-# Takes array A and returns a sorted version.
-#
-
+quicksort(A)
