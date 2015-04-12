@@ -4,6 +4,13 @@
 # sort the left portions and right portions
 import random
 
+# A is always the same array, re-arranged
+# if finish is the same as start, we're done with this part of A
+# otherwise, find a random index p of the subarray A[start] to A[finish]
+# and swap around p so all things in the subarray before p are less than
+# and all things in the subarray after p are greater than.
+# And partition the stuff before p and the stuff after p. 
+#
 def partition(A, start, finish):
   if finish - start <= 1:
     return A
